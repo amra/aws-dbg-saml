@@ -26,6 +26,7 @@ awsdir = os.path.join(expanduser('~'), '.aws')                          # AWS Di
 credentials_file = os.path.join(awsdir, 'credentials')                  # AWS Credentials File
 auth_cache_file = os.path.join(expanduser('~'), '.assumedRole.pkl')     # AWS Credentials cache file
 config_user_file = os.path.join(expanduser('~'), '.aws', 'user')
+env_names_file = os.path.join(expanduser('~'), '.aws', 'env.json')
 
 def check_credentials_file():
     if not os.path.isfile(credentials_file):
@@ -221,13 +222,25 @@ def auth_live():
 
     # If I have more than one role, ask the user which one they want,
     # otherwise just proceed
+    env_names = json.loads('{}')
+    if os.path.isfile(env_names_file):
+        try:
+            temp = open(env_names_file).read()
+            env_names = json.loads(temp)
+        except (RuntimeError, TypeError, NameError, AttributeError, OSError, ValueError, ), e:
+            print('\033[91m' + 'Error while reading file ' + env_names_file + '\033[0m')
+            print('\033[91m' + format(e) + '\033[0m')
+
     if debug:
         print("Number of awsroles found: " + str(len(awsroles)))
     if len(awsroles) > 1:
         i = 0
         print("Please choose the role you would like to assume:")
         for awsrole in awsroles:
-            print('[' +  str(i) + ']: ' + awsrole.split(',')[0])
+            env_number = awsrole.split(',')[0].split(':')[4]
+            env_role = awsrole.split(',')[0].split(':')[5]
+            env_name = '' if env_names.get(env_number) is None else ' - ' + '\033[1;92m' + env_names.get(env_number) + '\033[0m'
+            print('[' +  str(i) + ']: ' + env_number + ' - ' + env_role + env_name)
             i += 1
         print("Selection: ")
         selectedroleindex = input()
