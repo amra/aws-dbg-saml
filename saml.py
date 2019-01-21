@@ -227,7 +227,7 @@ def auth_live():
         try:
             temp = open(env_names_file).read()
             env_names = json.loads(temp)
-        except (RuntimeError, TypeError, NameError, AttributeError, OSError, ValueError, ), e:
+        except (RuntimeError, TypeError, NameError, AttributeError, OSError, ValueError) as e:
             print('\033[91m' + 'Error while reading file ' + env_names_file + '\033[0m')
             print('\033[91m' + format(e) + '\033[0m')
 
